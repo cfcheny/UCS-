@@ -1,0 +1,82 @@
+import heapq
+
+def UCS(actions):
+    frontier = []
+    action = []
+    node_mesg = {}
+    isn_start = True
+    isn_goal = True
+    for item in actions:
+        if (item[0]!=item[1] and item[0].isalpha() and item[0]!="Goal" and item[1].isalpha() and item[1]!="Start" and item[2].isdigit()): 
+            action.append(item)
+            if item[0] == "Start":
+                heapq.heappush(frontier,(int(item[2]),item[0],item[1])) 
+                isn_start = False
+            if item[1] =="Goal":
+                isn_goal = False
+        else:
+            continue
+    if (isn_start or isn_goal):
+        return 'Unreachable'
+    while len(frontier) > 0:
+        node = heapq.heappop(frontier) 
+        has_ever = node_mesg.get(node[2],0)
+        if has_ever==0:
+            node_mesg[node[2]]=(node[1],node[0])
+        elif(node[0] < node_mesg[node[2]][1]):
+            node_mesg[node[2]]=(node[1],node[0])
+            continue
+        else:
+            continue
+        if node[2] != "Goal":
+            for item in action:
+                cost = node[0]
+                if (item[0] == node[2]):
+                    cost = node[0]+int(item[2])
+                    flag = True
+                    for index,(c,s,e) in enumerate(frontier):
+                        if e == item[1]:
+                            flag = False
+                            if c > cost:
+                                del frontier[index]
+                                frontier.append((cost,item[0],item[1]))
+                                heapq.heapify(frontier)
+                            else:
+                                continue
+                    if flag:
+                        heapq.heappush(frontier,(cost,item[0],item[1]))
+                else: 
+                    continue
+        else:
+            path = []
+            path.insert(0,"Goal")
+            str_parent = node_mesg["Goal"][0]
+            path.insert(0,str_parent)
+            while str_parent != "Start":
+                str_parent = node_mesg[str_parent][0]
+                path.insert(0,str_parent)
+            return (path)
+    return 'Unreachable'
+             
+def main():
+    actions = []
+    jud = True
+    while jud:
+        a = input().strip()
+        if a != 'END':
+            a =a.split()
+            if len(a) != 3:
+                continue
+            actions += [a]
+        else:
+            jud = False
+    answer = UCS(actions)
+    s = "->"
+    if answer == 'Unreachable':
+        print(answer)
+    else:
+        path = s.join(answer)
+        print(path)
+                    
+if __name__ =='__main__':
+     main()
